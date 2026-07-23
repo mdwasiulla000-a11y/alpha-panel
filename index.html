@@ -45,16 +45,18 @@
   </div>
 
   <script>
-    const API_URL = "https://alpha-backend-yev0.onrender.com";
+    // Direct Backend API URL (No extra paths)
+    const API_BASE_URL = "https://alpha-backend-yev0.onrender.com";
 
-    // Wakeup Ping
-    fetch(API_URL)
-      .then(() => {
+    // Wakeup Ping / Health Check
+    fetch(`${API_BASE_URL}/`)
+      .then(res => res.text())
+      .then(data => {
         document.getElementById('statusBadge').innerText = "Backend Connected";
         document.getElementById('statusBadge').className = "text-sm bg-emerald-900/50 border border-emerald-500/30 px-3 py-1 rounded-full text-emerald-300";
       })
-      .catch(() => {
-        document.getElementById('statusBadge').innerText = "Server Waking Up...";
+      .catch(err => {
+        document.getElementById('statusBadge').innerText = "Server Offline/Waking Up";
       });
 
     async function generateKeys() {
@@ -66,9 +68,11 @@
       const amount = parseInt(document.getElementById('keyAmount').value);
 
       try {
-        const response = await fetch(`${API_URL}/api/generate-key`, {
+        const response = await fetch(`${API_BASE_URL}/api/generate-key`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json' 
+          },
           body: JSON.stringify({ durationDays, amount })
         });
 
@@ -79,10 +83,10 @@
           document.getElementById('outputArea').classList.remove('hidden');
           document.getElementById('keyBox').value = keyList;
         } else {
-          alert('Error: ' + result.message);
+          alert('Error: ' + (result.message || 'Key generation failed'));
         }
       } catch (err) {
-        alert('Server waking up or offline! Dubara click karein.');
+        alert('Server waking up or offline! 10 second baad dubara try karein.');
         console.error(err);
       } finally {
         btn.innerText = "Generate Now";
