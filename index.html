@@ -45,19 +45,22 @@
   </div>
 
   <script>
-    // Direct Backend API URL (No extra paths)
-    const API_BASE_URL = "https://alpha-backend-yev0.onrender.com";
+    const API_BASE = "https://alpha-backend-yev0.onrender.com";
 
-    // Wakeup Ping / Health Check
-    fetch(`${API_BASE_URL}/`)
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById('statusBadge').innerText = "Backend Connected";
-        document.getElementById('statusBadge').className = "text-sm bg-emerald-900/50 border border-emerald-500/30 px-3 py-1 rounded-full text-emerald-300";
-      })
-      .catch(err => {
-        document.getElementById('statusBadge').innerText = "Server Offline/Waking Up";
-      });
+    // Check backend connection
+    async function checkBackend() {
+      try {
+        const res = await fetch(API_BASE + '/');
+        if (res.ok) {
+          document.getElementById('statusBadge').innerText = "Backend Connected";
+          document.getElementById('statusBadge').className = "text-sm bg-emerald-900/50 border border-emerald-500/30 px-3 py-1 rounded-full text-emerald-300";
+        }
+      } catch (err) {
+        document.getElementById('statusBadge').innerText = "Server Waking Up...";
+      }
+    }
+
+    checkBackend();
 
     async function generateKeys() {
       const btn = document.getElementById('genBtn');
@@ -68,11 +71,9 @@
       const amount = parseInt(document.getElementById('keyAmount').value);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/generate-key`, {
+        const response = await fetch(API_BASE + '/api/generate-key', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json' 
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ durationDays, amount })
         });
 
@@ -83,10 +84,10 @@
           document.getElementById('outputArea').classList.remove('hidden');
           document.getElementById('keyBox').value = keyList;
         } else {
-          alert('Error: ' + (result.message || 'Key generation failed'));
+          alert('Error: ' + result.message);
         }
       } catch (err) {
-        alert('Server waking up or offline! 10 second baad dubara try karein.');
+        alert('Server waking up or connecting! 10 second baad dubara click karein.');
         console.error(err);
       } finally {
         btn.innerText = "Generate Now";
