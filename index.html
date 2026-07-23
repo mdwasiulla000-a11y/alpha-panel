@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROJECT ALPHA - Control Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <nav class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-indigo-400">🔥 PROJECT ALPHA PANEL</h1>
+    <span class="text-sm bg-indigo-900/50 border border-indigo-500/30 px-3 py-1 rounded-full text-indigo-300">Backend Connected</span>
+  </nav>
+
+  <div class="container mx-auto p-6 max-w-4xl flex-grow">
+    
+    <!-- KEY GENERATION CARD -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 mb-8 shadow-lg">
+      <h2 class="text-lg font-semibold text-white mb-4 border-b border-slate-700 pb-2">🔑 Generate License Keys</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Duration (Days)</label>
+          <input id="keyDuration" type="number" value="30" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Quantity (Amount)</label>
+          <input id="keyAmount" type="number" value="1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div class="flex items-end">
+          <button onclick="generateKeys()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg transition shadow">Generate Now</button>
+        </div>
+      </div>
+
+      <!-- Generated Keys Display -->
+      <div id="outputArea" class="hidden mt-4 bg-slate-900 p-4 rounded-lg border border-slate-700">
+        <p class="text-xs text-indigo-400 font-semibold mb-2">Generated License Keys:</p>
+        <textarea id="keyBox" readonly class="w-full bg-transparent text-emerald-400 font-mono text-sm focus:outline-none h-24 resize-none"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_URL = "https://alpha-backend-yev0.onrender.com";
+
+    async function generateKeys() {
+      const durationDays = parseInt(document.getElementById('keyDuration').value);
+      const amount = parseInt(document.getElementById('keyAmount').value);
+
+      try {
+        const response = await fetch(`${API_URL}/api/generate-key`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ durationDays, amount })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const keyList = result.keys.map(k => k.key_code).join('\n');
+          document.getElementById('outputArea').classList.remove('hidden');
+          document.getElementById('keyBox').value = keyList;
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (err) {
+        alert('Server connection failed!');
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
