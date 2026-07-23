@@ -13,7 +13,7 @@
 
   <nav class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center">
     <h1 class="text-xl font-bold text-indigo-400">🔥 PROJECT ALPHA PANEL</h1>
-    <span class="text-sm bg-indigo-900/50 border border-indigo-500/30 px-3 py-1 rounded-full text-indigo-300">Backend Connected</span>
+    <span id="statusBadge" class="text-sm bg-yellow-900/50 border border-yellow-500/30 px-3 py-1 rounded-full text-yellow-300">Connecting...</span>
   </nav>
 
   <div class="container mx-auto p-6 max-w-4xl flex-grow">
@@ -31,7 +31,7 @@
           <input id="keyAmount" type="number" value="1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
         </div>
         <div class="flex items-end">
-          <button onclick="generateKeys()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg transition shadow">Generate Now</button>
+          <button id="genBtn" onclick="generateKeys()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg transition shadow">Generate Now</button>
         </div>
       </div>
 
@@ -47,7 +47,21 @@
   <script>
     const API_URL = "https://alpha-backend-yev0.onrender.com";
 
+    // Wakeup Ping
+    fetch(API_URL)
+      .then(() => {
+        document.getElementById('statusBadge').innerText = "Backend Connected";
+        document.getElementById('statusBadge').className = "text-sm bg-emerald-900/50 border border-emerald-500/30 px-3 py-1 rounded-full text-emerald-300";
+      })
+      .catch(() => {
+        document.getElementById('statusBadge').innerText = "Server Waking Up...";
+      });
+
     async function generateKeys() {
+      const btn = document.getElementById('genBtn');
+      btn.innerText = "Generating...";
+      btn.disabled = true;
+
       const durationDays = parseInt(document.getElementById('keyDuration').value);
       const amount = parseInt(document.getElementById('keyAmount').value);
 
@@ -68,8 +82,11 @@
           alert('Error: ' + result.message);
         }
       } catch (err) {
-        alert('Server connection failed!');
+        alert('Server waking up or offline! Dubara click karein.');
         console.error(err);
+      } finally {
+        btn.innerText = "Generate Now";
+        btn.disabled = false;
       }
     }
   </script>
